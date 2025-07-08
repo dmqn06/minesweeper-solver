@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper Solver - Giải Dò Mìn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="number"] {
+            width: 100px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 2px;
+            background: #333;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cell:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .cell.number {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .cell.mine {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .cell.safe {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+        
+        .cell.unknown {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .solution {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .solution h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .cell {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Minesweeper Solver</h1>
+            <p>Giải bài toán dò mìn thông minh</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="gridSize">Kích thước lưới:</label>
+                    <input type="number" id="gridSize" min="3" max="10" value="5">
+                    <button class="btn-secondary" onclick="createGrid()">Tạo lưới</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="totalMines">Tổng số mìn:</label>
+                    <input type="number" id="totalMines" min="1" max="50" value="8">
+                </div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #e3f2fd; color: #1976d2;">1</div>
+                    <span>Ô có số (đã mở)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #e8f5e8; color: #388e3c;">M</div>
+                    <span>Ô an toàn (đã mở)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #f5f5f5; color: #666;">0</div>
+                    <span>Ô chưa mở</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #ffebee; color: #d32f2f;">*</div>
+                    <span>Mìn</span>
+                </div>
+            </div>
+            
+            <div class="grid-container">
+                <div id="grid" class="grid"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn-primary" onclick="solveGrid()">🔍 Giải</button>
+                <button class="btn-secondary" onclick="clearGrid()">🧹 Xóa</button>
+                <button class="btn-success" onclick="loadExample()">📝 Ví dụ</button>
+            </div>
+            
+            <div id="results" class="results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentGrid = [];
+        let gridSize = 5;
+        
+        // Khởi tạo lưới khi trang load
+        window.onload = function() {
+            createGrid();
+        };
+        
+        function createGrid() {
+            gridSize = parseInt(document.getElementById('gridSize').value);
+            const gridContainer = document.getElementById('grid');
+            gridContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            gridContainer.innerHTML = '';
+            
+            currentGrid = [];
+            for (let i = 0; i < gridSize; i++) {
+                currentGrid[i] = [];
+                for (let j = 0; j < gridSize; j++) {
+                    currentGrid[i][j] = 0;
+                    
+                    const cell = document.createElement('button');
+                    cell.className = 'cell unknown';
+                    cell.textContent = '0';
+                    cell.onclick = () => toggleCell(i, j, cell);
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+        
+        function toggleCell(row, col, cellElement) {
+            const values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 'M'];
+            const currentIndex = values.indexOf(currentGrid[row][col]);
+            const nextIndex = (currentIndex + 1) % values.length;
+            const nextValue = values[nextIndex];
+            
+            currentGrid[row][col] = nextValue;
+            cellElement.textContent = nextValue;
+            
+            // Cập nhật style
+            cellElement.className = 'cell ';
+            if (nextValue === 'M') {
+                cellElement.className += 'safe';
+            } else if (nextValue === 0) {
+                cellElement.className += 'unknown';
+            } else {
+                cellElement.className += 'number';
+            }
+        }
+        
+        function clearGrid() {
+            createGrid();
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function loadExample() {
+            gridSize = 5;
+            document.getElementById('gridSize').value = 5;
+            document.getElementById('totalMines').value = 8;
+            
+            const exampleGrid = [
+                [0, 0, 0, 0, 0],
+                [0, 2, 1, 2, 0],
+                [0, 1, 'M', 2, 0],
+                [0, 2, 2, 2, 0],
+                [0, 0, 0, 0, 0]
+            ];
+            
+            createGrid();
+            
+            const cells = document.querySelectorAll('.cell');
+            let cellIndex = 0;
+            
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    currentGrid[i][j] = exampleGrid[i][j];
+                    const cell = cells[cellIndex];
+                    cell.textContent = exampleGrid[i][j];
+                    
+                    cell.className = 'cell ';
+                    if (exampleGrid[i][j] === 'M') {
+                        cell.className += 'safe';
+                    } else if (exampleGrid[i][j] === 0) {
+                        cell.className += 'unknown';
+                    } else {
+                        cell.className += 'number';
+                    }
+                    
+                    cellIndex++;
+                }
+            }
+        }
+        
+        function solveGrid() {
+            const totalMines = parseInt(document.getElementById('totalMines').value);
+            
+            try {
+                const solver = new MinesweeperSolver(currentGrid, totalMines);
+                const numSolutions = solver.solve();
+                
+                displayResults(solver, numSolutions);
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'error');
+            }
+        }
+        
+        function displayResults(solver, numSolutions) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            resultsDiv.style.display = 'block';
+            
+            if (numSolutions === 0) {
+                resultsDiv.innerHTML = '<div class="alert alert-error">❌ Không có lời giải nào!</div>';
+                return;
+            }
+            
+            if (numSolutions === 1) {
+                resultsDiv.innerHTML = '<div class="alert alert-success">✅ Có 1 lời giải duy nhất!</div>';
+            } else {
+                resultsDiv.innerHTML = `<div class="alert alert-warning">⚠️ Có ${numSolutions} lời giải khác nhau!</div>`;
+            }
+            
+            // Hiển thị tất cả lời giải
+            for (let i = 0; i < solver.allSolutions.length; i++) {
+                const solution = solver.allSolutions[i];
+                const solutionDiv = document.createElement('div');
+                solutionDiv.className = 'solution';
+                
+                let html = `<h3>Lời giải ${i + 1}:</h3>`;
+                html += '<div class="grid" style="display: inline-grid; gap: 2px; padding: 10px;">';
+                html += `grid-template-columns: repeat(${gridSize}, 1fr);`;
+                
+                let minePositions = [];
+                for (let row = 0; row < gridSize; row++) {
+                    for (let col = 0; col < gridSize; col++) {
+                        const isMine = solution[row][col] === true;
+                        if (isMine) {
+                            minePositions.push(`(${row},${col})`);
+                        }
+                        
+                        html += `<div class="cell ${isMine ? 'mine' : 'safe'}" style="width: 30px; height: 30px; font-size: 14px;">`;
+                        html += isMine ? '*' : '.';
+                        html += '</div>';
+                    }
+                }
+                
+                html += '</div>';
+                html += `<p><strong>Tọa độ các mìn:</strong> ${minePositions.join(', ')}</p>`;
+                html += `<p><strong>Tổng số mìn:</strong> ${minePositions.length}</p>`;
+                
+                solutionDiv.innerHTML = html;
+                resultsDiv.appendChild(solutionDiv);
+            }
+            
+            // Phân tích mức độ chắc chắn nếu có nhiều lời giải
+            if (numSolutions > 1) {
+                const certaintyDiv = document.createElement('div');
+                certaintyDiv.className = 'solution';
+                certaintyDiv.innerHTML = '<h3>Phân tích mức độ chắc chắn:</h3>';
+                
+                let html = '<div class="grid" style="display: inline-grid; gap: 2px; padding: 10px;">';
+                html += `grid-template-columns: repeat(${gridSize}, 1fr);`;
+                
+                for (let row = 0; row < gridSize; row++) {
+                    for (let col = 0; col < gridSize; col++) {
+                        const hasMinInAll = solver.allSolutions.every(sol => sol[row][col] === true);
+                        const noMineInAll = solver.allSolutions.every(sol => sol[row][col] === false);
+                        
+                        let symbol, className;
+                        if (hasMinInAll) {
+                            symbol = '*';
+                            className = 'mine';
+                        } else if (noMineInAll) {
+                            symbol = '.';
+                            className = 'safe';
+                        } else {
+                            symbol = '?';
+                            className = 'unknown';
+                        }
+                        
+                        html += `<div class="cell ${className}" style="width: 30px; height: 30px; font-size: 14px;">${symbol}</div>`;
+                    }
+                }
+                
+                html += '</div>';
+                html += '<p><strong>Chú thích:</strong> * = chắc chắn có mìn, . = chắc chắn không có mìn, ? = không chắc chắn</p>';
+                
+                certaintyDiv.innerHTML += html;
+                resultsDiv.appendChild(certaintyDiv);
+            }
+        }
+        
+        function showAlert(message, type) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            resultsDiv.style.display = 'block';
+        }
+        
+        // Minesweeper Solver Class (JavaScript version)
+        class MinesweeperSolver {
+            constructor(grid, totalMines) {
+                this.grid = grid.map(row => [...row]);
+                this.totalMines = totalMines;
+                this.rows = grid.length;
+                this.cols = grid[0].length;
+                this.mines = Array(this.rows).fill().map(() => Array(this.cols).fill(null));
+                this.allSolutions = [];
+                
+                // Khởi tạo trạng thái các ô
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
+                        if (this.grid[row][col] === 'M') {
+                            this.mines[row][col] = false;
+                        } else if (typeof this.grid[row][col] === 'number' && this.grid[row][col] > 0) {
+                            this.mines[row][col] = false;
+                        }
+                    }
+                }
+            }
+            
+            getNeighbors(row, col) {
+                const neighbors = [];
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                            neighbors.push([nr, nc]);
+                        }
+                    }
+                }
+                return neighbors;
+            }
+            
+            countMinesAround(row, col) {
+                let count = 0;
+                for (const [nr, nc] of this.getNeighbors(row, col)) {
+                    if (this.mines[nr][nc] === true) {
+                        count++;
+                    }
+                }
+                return count;
+            }
+            
+            getUnknownNeighbors(row, col) {
+                const unknown = [];
+                for (const [nr, nc] of this.getNeighbors(row, col)) {
+                    if (this.mines[nr][nc] === null) {
+                        unknown.push([nr, nc]);
+                    }
+                }
+                return unknown;
+            }
+            
+            isValidState() {
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
+                        if (typeof this.grid[row][col] === 'number' && this.grid[row][col] > 0) {
+                            const minesAround = this.countMinesAround(row, col);
+                            const unknownAround = this.getUnknownNeighbors(row, col).length;
+                            
+                            if (minesAround > this.grid[row][col]) {
+                                return false;
+                            }
+                            if (minesAround + unknownAround < this.grid[row][col]) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                
+                const totalMines = this.mines.flat().filter(cell => cell === true).length;
+                const unknownCount = this.mines.flat().filter(cell => cell === null).length;
+                
+                if (totalMines > this.totalMines) return false;
+                if (totalMines + unknownCount < this.totalMines) return false;
+                
+                return true;
+            }
+            
+            isCompleteAndValid() {
+                for (const row of this.mines) {
+                    for (const cell of row) {
+                        if (cell === null) return false;
+                    }
+                }
+                
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
+                        if (typeof this.grid[row][col] === 'number' && this.grid[row][col] > 0) {
+                            const minesAround = this.countMinesAround(row, col);
+                            if (minesAround !== this.grid[row][col]) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                
+                const totalMines = this.mines.flat().filter(cell => cell === true).length;
+                return totalMines === this.totalMines;
+            }
+            
+            applyBasicRules() {
+                let changed = true;
+                while (changed) {
+                    changed = false;
+                    
+                    for (let row = 0; row < this.rows; row++) {
+                        for (let col = 0; col < this.cols; col++) {
+                            if (typeof this.grid[row][col] === 'number' && this.grid[row][col] > 0) {
+                                const minesAround = this.countMinesAround(row, col);
+                                const unknownNeighbors = this.getUnknownNeighbors(row, col);
+                                
+                                if (minesAround === this.grid[row][col]) {
+                                    for (const [nr, nc] of unknownNeighbors) {
+                                        if (this.mines[nr][nc] === null) {
+                                            this.mines[nr][nc] = false;
+                                            changed = true;
+                                        }
+                                    }
+                                } else if (minesAround + unknownNeighbors.length === this.grid[row][col]) {
+                                    for (const [nr, nc] of unknownNeighbors) {
+                                        if (this.mines[nr][nc] === null) {
+                                            this.mines[nr][nc] = true;
+                                            changed = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            findAllSolutions() {
+                const unknownPositions = [];
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        if (this.mines[r][c] === null && this.grid[r][c] === 0) {
+                            unknownPositions.push([r, c]);
+                        }
+                    }
+                }
+                
+                if (unknownPositions.length === 0) {
+                    if (this.isCompleteAndValid()) {
+                        this.allSolutions.push(this.mines.map(row => [...row]));
+                    }
+                    return;
+                }
+                
+                const currentMines = this.mines.flat().filter(cell => cell === true).length;
+                const remainingMines = this.totalMines - currentMines;
+                
+                if (remainingMines < 0 || remainingMines > unknownPositions.length) {
+                    return;
+                }
+                
+                // Generate all combinations
+                const combinations = this.getCombinations(unknownPositions, remainingMines);
+                
+                for (const minePositions of combinations) {
+                    // Set mines
+                    for (const [r, c] of unknownPositions) {
+                        this.mines[r][c] = minePositions.some(([mr, mc]) => mr === r && mc === c);
+                    }
+                    
+                    if (this.isCompleteAndValid()) {
+                        this.allSolutions.push(this.mines.map(row => [...row]));
+                    }
+                    
+                    // Backtrack
+                    for (const [r, c] of unknownPositions) {
+                        this.mines[r][c] = null;
+                    }
+                }
+            }
+            
+            getCombinations(arr, r) {
+                const result = [];
+                
+                function backtrack(start, current) {
+                    if (current.length === r) {
+                        result.push([...current]);
+                        return;
+                    }
+                    
+                    for (let i = start; i < arr.length; i++) {
+                        current.push(arr[i]);
+                        backtrack(i + 1, current);
+                        current.pop();
+                    }
+                }
+                
+                backtrack(0, []);
+                return result;
+            }
+            
+            solve() {
+                this.applyBasicRules();
+                
+                const unknownCount = this.mines.flat().filter(cell => cell === null).length;
+                
+                if (unknownCount > 0) {
+                    this.findAllSolutions();
+                } else {
+                    if (this.isCompleteAndValid()) {
+                        this.allSolutions.push(this.mines.map(row => [...row]));
+                    }
+                }
+                
+                return this.allSolutions.length;
+            }
+        }
+    </script>
+</body>
+</html>
