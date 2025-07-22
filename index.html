@@ -275,7 +275,7 @@
                 </select>
                 
                 <label>Số rương:</label>
-                <input type="number" id="mineCount" value="5" min="1" max="20">
+                <input type="number" id="mineCount" value="5" min="1" max="20"/>
                 
                 <div class="buttons">
                     <button class="btn btn-primary" onclick="createGrid()">Tạo Lưới</button>
@@ -292,14 +292,14 @@
                 <li><strong>Số (1-8):</strong> Click vào ô để nhập số rương xung quanh</li>
                 <li><strong>S:</strong> Click nhiều lần để đánh dấu ô không có gì</li>
                 <li><strong>?:</strong> Click để đánh dấu ô chưa biết</li>
-                <li><strong>M:</strong> Click để đánh dấu ô có rương</li>
+                <li><strong>R:</strong> Click để đánh dấu ô có rương</li>
                 <li>Click "Giải" để tìm lời giải và phân tích xác suất</li>
             </ul>
         </div>
 
         <div class="game-area">
             <div id="grid" class="grid"></div>
-            
+
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ff4444;"></div>
@@ -329,7 +329,7 @@
                 this.grid = [];
                 this.size = 5;
                 this.solutions = [];
-                this.cellStates = ['?', '1', '2', '3', '4', '5', '6', '7', '8', 'S', 'M'];
+                this.cellStates = ['?', '1', '2', '3', '4', '5', '6', '7', '8', 'S', 'R'];
                 this.currentStateIndex = {};
             }
 
@@ -352,7 +352,7 @@
                         cell.textContent = '?';
                         cell.onclick = () => this.toggleCell(i, j);
                         gridElement.appendChild(cell);
-                        
+
                         row.push('?');
                         this.currentStateIndex[`${i}-${j}`] = 0;
                     }
@@ -364,18 +364,18 @@
                 const key = `${row}-${col}`;
                 this.currentStateIndex[key] = (this.currentStateIndex[key] + 1) % this.cellStates.length;
                 const newState = this.cellStates[this.currentStateIndex[key]];
-                
+
                 this.grid[row][col] = newState;
-                
+
                 const cellElement = document.querySelector(`#grid .cell:nth-child(${row * this.size + col + 1})`);
                 cellElement.textContent = newState;
                 cellElement.className = 'cell';
-                
+
                 if (newState >= '1' && newState <= '8') {
                     cellElement.classList.add('revealed', `number-${newState}`);
                 } else if (newState === 'S') {
                     cellElement.classList.add('safe');
-                } else if (newState === 'M') {
+                } else if (newState === 'R') {
                     cellElement.classList.add('mine');
                 }
             }
@@ -600,23 +600,25 @@
 
             highlightCells() {
                 const probabilities = this.calculateProbabilities();
-                
+
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size; j++) {
                         const cellKey = `${i}-${j}`;
                         const cellElement = document.querySelector(`#grid .cell:nth-child(${i * this.size + j + 1})`);
-                        
+
                         if (probabilities[cellKey] !== undefined) {
                             const prob = probabilities[cellKey];
                             cellElement.classList.remove('mine', 'safe', 'uncertain');
-                            
+
                             if (prob === 1) {
                                 cellElement.classList.add('mine');
+                                cellElement.title = `Xác suất có rương: 100%`;
                             } else if (prob === 0) {
                                 cellElement.classList.add('safe');
+                                cellElement.title = `Chắc chắn không có rương`;
                             } else {
                                 cellElement.classList.add('uncertain');
-                                cellElement.title = `Xác suất có mìn: ${Math.round(prob * 100)}%`;
+                                cellElement.title = `Xác suất có rương: ${Math.round(prob * 100)}%`;
                             }
                         }
                     }
@@ -646,26 +648,12 @@
 
         // Khởi tạo solver
         const solver = new MinesweeperSolver();
+        function createGrid() { solver.createGrid(); }
+        function clearGrid() { solver.clearGrid(); }
+        function solve() { solver.solve(); }
+        function resetResults() { solver.resetResults(); }
 
-        // Các hàm global
-        function createGrid() {
-            solver.createGrid();
-        }
-
-        function clearGrid() {
-            solver.clearGrid();
-        }
-
-        function solve() {
-            solver.solve();
-        }
-
-        function resetResults() {
-            solver.resetResults();
-        }
-
-        // Tạo lưới mặc định khi tải trang
-        window.onload = function() {
+        window.onload = function () {
             createGrid();
         };
     </script>
