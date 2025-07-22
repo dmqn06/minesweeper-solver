@@ -260,8 +260,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Minesweeper Solver</h1>
-            <p>Giải bài toán dò mìn thông minh với JavaScript</p>
+            <h1>Hạ khư dẫn</h1>
         </div>
 
         <div class="controls">
@@ -275,7 +274,7 @@
                     <option value="16">16x16</option>
                 </select>
                 
-                <label>Số mìn:</label>
+                <label>Số rương:</label>
                 <input type="number" id="mineCount" value="5" min="1" max="20">
                 
                 <div class="buttons">
@@ -288,12 +287,12 @@
         </div>
 
         <div class="instructions">
-            <h3>📋 Hướng dẫn sử dụng:</h3>
+            <h3>Hướng dẫn sử dụng:</h3>
             <ul>
-                <li><strong>Số (1-8):</strong> Click vào ô để nhập số mìn xung quanh</li>
-                <li><strong>S:</strong> Click nhiều lần để đánh dấu ô an toàn</li>
+                <li><strong>Số (1-8):</strong> Click vào ô để nhập số rương xung quanh</li>
+                <li><strong>S:</strong> Click nhiều lần để đánh dấu ô không có gì</li>
                 <li><strong>?:</strong> Click để đánh dấu ô chưa biết</li>
-                <li><strong>M:</strong> Click để đánh dấu ô có mìn</li>
+                <li><strong>M:</strong> Click để đánh dấu ô có rương</li>
                 <li>Click "Giải" để tìm lời giải và phân tích xác suất</li>
             </ul>
         </div>
@@ -304,11 +303,11 @@
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ff4444;"></div>
-                    <span>Mìn chắc chắn</span>
+                    <span>Rương chắc chắn</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #4CAF50;"></div>
-                    <span>An toàn chắc chắn</span>
+                    <span>Không có gì chắc chắn</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ffc107;"></div>
@@ -399,7 +398,7 @@
             solve() {
                 this.solutions = [];
                 const resultsElement = document.getElementById('results');
-                resultsElement.innerHTML = '<h3>🔍 Đang phân tích...</h3>';
+                resultsElement.innerHTML = '<h3> Đang phân tích...</h3>';
 
                 setTimeout(() => {
                     try {
