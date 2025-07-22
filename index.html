@@ -546,13 +546,13 @@
                 }
 
                 if (certainMines.length > 0) {
-                    analysis.innerHTML += `<p><strong style="color: #dc3545;">💣 Mìn chắc chắn:</strong> ${certainMines.join(', ')}</p>`;
+                    analysis.innerHTML += `<p><strong style="color: #dc3545;">Rương chắc chắn:</strong> ${certainMines.join(', ')}</p>`;
                 }
                 if (certainSafe.length > 0) {
-                    analysis.innerHTML += `<p><strong style="color: #28a745;">✅ An toàn chắc chắn:</strong> ${certainSafe.join(', ')}</p>`;
+                    analysis.innerHTML += `<p><strong style="color: #28a745;">Không có gì chắc chắn:</strong> ${certainSafe.join(', ')}</p>`;
                 }
                 if (uncertain.length > 0) {
-                    analysis.innerHTML += `<p><strong style="color: #ffc107;">❓ Không chắc chắn:</strong> ${uncertain.join(', ')}</p>`;
+                    analysis.innerHTML += `<p><strong style="color: #ffc107;"> Không chắc chắn:</strong> ${uncertain.join(', ')}</p>`;
                 }
 
                 resultsElement.appendChild(analysis);
